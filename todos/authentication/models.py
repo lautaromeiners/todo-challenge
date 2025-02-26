@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 from authentication.managers import UserManager
 
+
 class User(AbstractUser):
     # Use email as the username field for authentication.
     # This custom user model allows for easy extensibility in the future,
@@ -11,6 +12,5 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
-
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]

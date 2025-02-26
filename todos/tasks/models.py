@@ -1,9 +1,11 @@
 from django.db import models
 from authentication.models import User
 
+
 class TaskStatus(models.IntegerChoices):
-    OPEN = 0, 'Open'
-    COMPLETED = 1, 'Completed'
+    OPEN = 0, "Open"
+    COMPLETED = 1, "Completed"
+
 
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
