@@ -1,37 +1,120 @@
 # Invera ToDo-List Challenge (Python/Django Jr-SSr)
 
-El propósito de esta prueba es conocer tu capacidad para crear una pequeña aplicación funcional en un límite de tiempo. A continuación, encontrarás las funciones, los requisitos y los puntos clave que debés tener en cuenta durante el desarrollo.
+ToDo List API that allows users to register, login & perform CRUD and filtering operations over Tasks.
 
-## Qué queremos que hagas:
+## Installation Instructions
 
-- El Challenge consiste en crear una aplicación web sencilla que permita a los usuarios crear y mantener una lista de tareas.
-- La entrega del resultado será en un nuevo fork de este repo y deberás hacer una pequeña demo del funcionamiento y desarrollo del proyecto ante un super comité de las más grandes mentes maestras de Invera, o a un par de devs, lo que sea más fácil de conseguir.
-- Podes contactarnos en caso que tengas alguna consulta.
+After cloning the repository the first step for installation is creating a virtual environment.
 
-## Objetivos:
+```
+python3.8 -m venv venv
+```
 
-El usuario de la aplicación tiene que ser capaz de:
+And activate it
 
-- Autenticarse
-- Crear una tarea
-- Eliminar una tarea
-- Marcar tareas como completadas
-- Poder ver una lista de todas las tareas existentes
-- Filtrar/buscar tareas por fecha de creación y/o por el contenido de la misma
+```
+source venv/bin/activate
+```
 
-## Qué evaluamos:
+Once we've got the virtual environment activated we have to install the required dependencies. For this project I'm using pip, so the command to run is
 
-- Desarrollo utilizando Python, Django. No es necesario crear un Front-End, pero sí es necesario tener una API que permita cumplir con los objetivos de arriba.
-- Uso de librerías y paquetes estandares que reduzcan la cantidad de código propio añadido.
-- Calidad y arquitectura de código. Facilidad de lectura y mantenimiento del código. Estándares seguidos.
-- [Bonus] Manejo de logs.
-- [Bonus] Creación de tests (unitarias y de integración)
-- [Bonus] Unificar la solución propuesta en una imagen de Docker por repositorio para poder ser ejecutada en cualquier ambiente (si aplica para full stack).
+```
+pip install -r requirements.txt
+```
 
-## Requerimientos de entrega:
+With the dependencies installed, what's left to do is run migrations.
 
-- Hacer un fork del proyecto y pushearlo en github. Puede ser privado.
-- La solución debe correr correctamente.
-- El Readme debe contener todas las instrucciones para poder levantar la aplicación, en caso de ser necesario, y explicar cómo se usa.
-- Disponibilidad para realizar una pequeña demo del proyecto al finalizar el challenge.
-- Tiempo para la entrega: Aproximadamente 7 días.
+```
+python manage.py migrate
+```
+
+With this step done we are ready to run our server.
+
+```
+python manage.py runserver
+```
+
+Or we can run the tests to make sure that everything works correctly
+
+```
+python manage.py test
+```
+
+## Usage Instructions
+
+With the repo installed and ready to go, now we need to be able to use the application. We expose an API where a user can perform CRUD and filtering operations over Tasks.
+
+The easiest way to use this, is with cURL.
+
+The first thing we need to do is register
+
+```
+curl -X POST \
+  http://localhost:8000/api/v1/auth/registration/ \
+  -H 'Content-Type: application/json'   -d '{"username": "test", "email": "test@example.com", "password1": "secretpassword", "password2": "secretpassword"}'
+```
+Of course you can use whatever username, email and password you want. So once we get the token we will paste it in the header on subsequent API calls. All the other endpoints require authentication.
+
+Here's a comprehensive list of actions you can perform
+
+Create a Task
+
+```
+curl -X POST http://localhost:8000/api/v1/tasks/ \
+     -H "Authorization: Token <your_token>" \
+     -H "Content-Type: application/json" \
+     -d '{ "title": "New Task", "description": "This is a description of the new task."}'
+```
+
+List Tasks
+
+```
+curl -X GET http://localhost:8000/api/v1/tasks/ \
+     -H "Authorization: Token <your_token>"
+```
+
+Get Task details
+
+```
+curl -X GET http://localhost:8000/api/v1/tasks/<task_id>/ \
+     -H "Authorization: Token <your_token>"
+```
+
+Update a Task
+
+```
+curl -X PATCH http://localhost:8000/api/v1/tasks/<task_id>/ \
+     -H "Authorization: Token <your_token>" \
+     -H "Content-Type: application/json" \
+     -d '{ "status": 1 }'
+```
+
+Delete a Task
+
+```
+curl -X DELETE http://localhost:8000/api/v1/tasks/<task_id>/ \
+     -H "Authorization: Token <your_token>"
+```
+
+We can also filter Tasks by title
+
+```
+curl -X GET "http://localhost:8000/api/v1/tasks/?title=Task" \
+     -H "Authorization: Token <your_token>"
+```
+
+Or by status
+
+```
+curl -X GET "http://localhost:8000/api/v1/tasks/?completed=true" \
+     -H "Authorization: Token <your_token>"
+```
+
+```  
+curl -X GET "http://localhost:8000/api/v1/tasks/?completed=false" \
+     -H "Authorization: Token <your_token>"
+```
+
+# Code Quality
+
+Code is formatted with Black, DRF Viewsets are used to provide clear, readable code & to adhere to ReST best practices guaranteeing the appropiate HTTP methods are used. The application has unit & integration tests covering most of the application logic. Django's app structure is used to separate concerns from Authentication and Tasks, ensuring reusability. Third-party applications are used to provide robust, battle tested authentication & filtering. The User model extends AbstractUser ensuring flexibility and avoids potential migration issues later (as per Django's best practices). I decided to use a choices field for the status instead of a simple boolean field (such as completed) in order to adhere to Open/Closed SOLID principle, as the choices field allows you to easily add more statuses in the future without modifying the existing code. 
